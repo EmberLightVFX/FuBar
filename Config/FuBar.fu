@@ -1,0 +1,28 @@
+{
+  Action
+  {
+    ID = "FuBarUI_Show",
+    Name = "FuBarUI_Show",
+    Visible = true,
+    
+    Args =
+    {
+    },
+    
+    Targets =
+    {
+      Composition =
+      {
+        -- Read the mouse position and then launch the radial UI transparent window.
+        Execute = [[target:RunScript("FuBar:/Scripts/Comp/FuBar.py", { mousex = args._sxpos, mousey = args._sypos })]],
+      },
+    },
+  },
+  
+  Hotkeys
+  {
+    Target = "FuFrame",
+    
+    ESCAPE = "FuBarUI_Show",
+  }}
+  
