@@ -1,6 +1,3 @@
-from ast import Try
-
-
 global _thisapp, app, bmd, comp, composition, fu, fusion
 
 name = "Nodes"
