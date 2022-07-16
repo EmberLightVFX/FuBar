@@ -38,5 +38,6 @@ def search():
     return found
 
 
-def execute():
-    print("yay")
+def execute(node):
+    print("Placing node")
+    comp.AddTool(node, 32768, -32768)
