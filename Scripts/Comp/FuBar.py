@@ -20,7 +20,7 @@ ToDo:
 * Add images to the nodes like in the original search bar (fusion.GetToolIcon("Loader"))
 
 40px high (SizeHint)
- 
+
 """
 
 # ========================== Globals ============================ #
@@ -61,6 +61,40 @@ def AddModules():
         module = spec.loader.load_module(name)
         module.init(globs)
         modules.append(module)
+
+
+def get_all_tree_items(tree):
+    return tree.FindItems("*",
+                          {
+                              "MatchExactly": False,
+                              "MatchFixedString": False,
+                              "MatchContains": False,
+                              "MatchStartsWith": False,
+                              "MatchEndsWith": False,
+                              "MatchCaseSensitive": False,
+                              "MatchRegExp": False,
+                              "MatchWildcard": True,
+                              "MatchWrap": False,
+                              "MatchRecursive": True,
+                          }, 0)
+
+
+def selectTree(tree, amount):
+    treeItems = get_all_tree_items(tree)
+    selectedIndex = 0
+    for i, item in treeItems.items():
+        if item.Selected:
+            selectedIndex = i
+            item.Selected = False
+            break
+    selectedIndex = selectedIndex + amount
+
+    if selectedIndex <= 0:
+        treeItems[len(treeItems)].Selected = True
+    elif selectedIndex > len(treeItems):
+        treeItems[1].Selected = True
+    else:
+        treeItems[selectedIndex].Selected = True
 
 
 # ========================== UI ============================ #
@@ -114,6 +148,7 @@ def FuBarUI():
                 ui.LineEdit({
                     "ID": 'SearchBar',
                     "Weight": 10.0,
+                    "ClearButtonEnabled": True,
                     "Events": {
                         "ReturnPressed": True,
                         "TextChanged": True,
@@ -136,7 +171,13 @@ def FuBarUI():
 
     # The window was closed
     def _func(ev):
-        disp.ExitLoop()
+        try:
+            if ev["key"] == "up":
+                selectTree(itm["Tree"], -1)
+            elif ev["key"] == "down":
+                selectTree(itm["Tree"], 1)
+        except:
+            disp.ExitLoop()
     dlg.On.FuBarWin.Close = _func
 
     # Add your GUI element based event functions here:
@@ -179,35 +220,51 @@ def FuBarUI():
     # A Tree view row was clicked on
     def _func(ev):
         # Grab the name of the selected item and place in the search bar
-        print("[Single Clicked] " + str(ev["item"].Text[0]))
+        itm["SearchBar"].Text = ev["item"].Text[0]
     dlg.On.Tree.ItemClicked = _func
 
     # A Tree view row was double clicked on
-    def _func(ev):
+    def executeItem(ev):
         # Execute clicked item
-        print("[Double Clicked] " + str(ev["item"].Text[0]))
-    dlg.On.Tree.ItemDoubleClicked = _func
+        item = None
+        treeItems = get_all_tree_items(itm["Tree"]).items()
+
+        for _, treeItem in treeItems:
+            if treeItem.GetSelected():
+                item = treeItem
+                break
+        for module in modules:
+            module.execute(item.Text[1])
+    dlg.On.Tree.ItemDoubleClicked = executeItem
+
+    def _func(ev):
+        executeItem(None)
+        disp.ExitLoop()
+    dlg.On.SearchBar.ReturnPressed = _func
 
     # Map ESC to close UI
     comp.Execute("""
-    app:AddConfig('FuBarWin', {
-        Target {
-            ID = 'FuBarWin',
-        },
-        Hotkeys {
-            Target = 'FuBarWin',
-            Defaults = true,
+        app:AddConfig('FuBarWin', {
+            Target {
+                ID = 'FuBarWin',
+            },
+            Hotkeys {
+                Target = 'FuBarWin',
+                Defaults = true,
 
-            CONTROL_W = 'Execute{cmd = [[app.UIManager:QueueEvent(obj, "Close", {})]]}',
-            CONTROL_F4 = 'Execute{cmd = [[app.UIManager:QueueEvent(obj, "Close", {})]]}',
-            ESCAPE = 'Execute{cmd = [[app.UIManager:QueueEvent(obj, "Close", {})]]}',
-        },
-    })
-    """)
+                CONTROL_W = 'Execute{cmd = [[app.UIManager:QueueEvent(obj, "Close", {})]]}',
+                CONTROL_F4 = 'Execute{cmd = [[app.UIManager:QueueEvent(obj, "Close", {})]]}',
+                ESCAPE = 'Execute{cmd = [[app.UIManager:QueueEvent(obj, "Close", {})]]}',
+                UP = "Execute{cmd = [[app.UIManager:QueueEvent(obj, 'Close', {key = 'up'})]]}",
+                DOWN = "Execute{cmd = [[app.UIManager:QueueEvent(obj, 'Close', {key = 'down'})]]}",
+            },
+        })
+        """)
 
     dlg.Show()
     disp.RunLoop()
     dlg.Hide()
 
 
-FuBarUI()
+if __name__ == "__main__":
+    FuBarUI()
