@@ -23,17 +23,27 @@ def search():
 
     for _, category in tools.items():
         for _, tool in category.items():
+            attrs = fusion.GetRegAttrs(tool["ID"])
             OpIconString = ""
+            Description = ""
             try:
                 OpIconString = " (" + \
-                    fusion.GetRegAttrs(tool["ID"])["REGS_OpIconString"] + ")"
+                    attrs["REGS_OpIconString"] + ")"
+            except:
+                pass
+            try:
+                Description = attrs['REGS_OpDescription']
             except:
                 pass
 
-            name = tool["Name"] + OpIconString
+            name = attrs["REGS_Name"] + OpIconString
             found.append({
-                'Name': name,
-                'ID': tool["ID"],
+                'ViewName': name,
+                'Name': attrs['REGS_Name'],
+                'ID': attrs['REGS_ID'],
+                'OpString': OpIconString,
+                'Category': attrs['REGS_Category'],
+                'Description': Description,
             })
     return found
 

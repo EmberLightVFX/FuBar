@@ -1,5 +1,11 @@
 """
 
+REGI_ClassType?
+REGI_DataType?
+REGI_Priority?
+REGS_OpDescription
+
+
 ToDo:
 * Search all tools
     * Tools
@@ -108,8 +114,12 @@ def updateTree(tree, searchText):
     for tool in searchList:
         if searchText.lower() in tool["Name"].lower():
             itRow = tree.NewItem()
-            itRow.Text[0] = tool["Name"]
-            itRow.Text[1] = tool["ID"]
+            itRow.Text[0] = tool["ViewName"]
+            itRow.Text[1] = tool["Name"]
+            itRow.Text[2] = tool["ID"]
+            itRow.Text[3] = tool["OpString"]
+            itRow.Text[4] = tool["Category"]
+            itRow.Text[5] = tool["Description"]
             tree.AddTopLevelItem(itRow)
             foundItems = foundItems + 1
             if foundItems >= maxItems:
@@ -185,11 +195,15 @@ def FuBarUI():
     # Add a header row
     hdr = itm["Tree"].NewItem()
 
-    hdr.Text[0] = "Name"
-    hdr.Text[1] = "ID"
-    hdr.Text[2] = "Weight"
-    hdr.Text[3] = "Data1"
-    hdr.Text[4] = "Data2"
+    hdr.Text[0] = "ViewName"
+    hdr.Text[1] = "Name"
+    hdr.Text[2] = "ID"
+    hdr.Text[3] = "OpString"
+    hdr.Text[4] = "Category"
+    hdr.Text[5] = "Description"
+    hdr.Text[6] = "Weight"
+    hdr.Text[7] = "Data1"
+    hdr.Text[8] = "Data2"
     itm["Tree"].SetHeaderItem(hdr)
 
     # Number of columns in the Tree list
